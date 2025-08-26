@@ -36,15 +36,16 @@ void setup() {
 
 void loop() {
  
-  goz_hareketleri();
+  eyelashs();
 
-  uzgun_dudak();
+  drawMouth(2, 64, 50, 20, 5);  // mode=1 → gülümseme
+
 
   display.display();
   delay(random(500, 1500));
 }
 
-void goz_hareketleri(){
+void eyelashs(){
    int offsetX = random(-4, 5);
   int offsetY = random(-3, 4);
 
@@ -59,10 +60,43 @@ void goz_hareketleri(){
   display.fillCircle(rightEyeX + offsetX, eyeY + offsetY, pupilRadius, SSD1306_WHITE);
 }
 
-void uzgun_dudak(){
-  // Dudak (basit yay/arc şeklinde gülümseme)
+void sad_lips(){
   for (int i = -mouthWidth/2; i <= mouthWidth/2; i++) {
     int y = mouthY + (i*i) / (mouthWidth/2) - mouthHeight; 
     display.drawPixel(mouthX + i, y, SSD1306_WHITE);
+  }
+}
+
+void drawMouth(int mode, int mouthX, int mouthY, int mouthWidth, int mouthHeight) {
+  switch(mode) {
+    case 0: // Normal (düz çizgi)
+      display.drawLine(mouthX - mouthWidth/2, mouthY, 
+                       mouthX + mouthWidth/2, mouthY, SSD1306_WHITE);
+      break;
+
+    case 1: // Mutlu (gülümseme)
+      for (int i = -mouthWidth/2; i <= mouthWidth/2; i++) {
+        int y = mouthY + (i*i) / (mouthWidth/4) - mouthHeight; 
+        display.drawPixel(mouthX + i, y, SSD1306_WHITE);
+      }
+      break;
+
+    case 2: // Üzgün (somurtma)
+      for (int i = -mouthWidth/2; i <= mouthWidth/2; i++) {
+        int y = mouthY - (i*i) / (mouthWidth/4) + mouthHeight; 
+        display.drawPixel(mouthX + i, y, SSD1306_WHITE);
+      }
+      break;
+
+    case 3: // Şaşkın (açık ağız)
+      display.drawCircle(mouthX, mouthY, mouthWidth/4, SSD1306_WHITE);
+      break;
+
+    case 4: // Kahkaha (yarım yay gibi)
+      for (int i = -mouthWidth/2; i <= mouthWidth/2; i++) {
+        int y = mouthY + (i*i) / (mouthWidth/4); 
+        display.drawPixel(mouthX + i, y, SSD1306_WHITE);
+      }
+      break;
   }
 }
