@@ -7,7 +7,11 @@
 #define OLED_RESET    -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+int viberPin = 4-2;
+
 void setup() {
+  pinMode(viberPin, INPUT);
+
   Serial.begin(115200);
   Wire.begin(5, 4); // SDA=5, SCL=4
 
@@ -20,31 +24,54 @@ void setup() {
   delay(200);
 }
 
+void drawEye(int x, int y, int w, int h) {
+  display.fillRect(x, y, w, h, SSD1306_WHITE);
+}
 
-void drawSquare(int x, int y, int size, bool filled) {
-  if (filled) {
-    display.fillRect(x, y, size, size, SSD1306_WHITE);
-  } else {
-    display.drawRect(x, y, size, size, SSD1306_WHITE);
+void blinkEyes() {
+  int sizeW = 40;   // Göz genişliği
+  int sizeH = 40;   // Normal yükseklik
+
+  int leftX = (SCREEN_WIDTH/2 - sizeW) / 2;
+  int rightX = (SCREEN_WIDTH+60 - sizeW) / 2;
+  int eyeY = (SCREEN_HEIGHT - sizeH) / 2;
+
+  // Göz kapatma (yükseklik küçülüyor)
+  for (int h = sizeH; h > 5; h -= 5) {
+    display.clearDisplay();
+    drawEye(leftX, eyeY, sizeW, h);
+    drawEye(rightX, eyeY, sizeW, h);
+    display.display();
+    delay(10);
+  }  
+
+  delay(75); // Tam kapalı kalma süresi
+
+  // Göz açma (yükseklik geri büyüyor)
+  for (int h = 5; h <= sizeH; h += 5) {
+    display.clearDisplay();
+    drawEye(leftX, eyeY, sizeW, h);
+    drawEye(rightX, eyeY, sizeW, h);
+    display.display();
+    delay(10);
   }
 }
 
 void loop() {
-  display.clearDisplay();
+  int viberConteol = digitalRead(viberPin);
+  Serial.println(viberConteol);
+  if(viberConteol == 0){
+    // Normal göz açık
+    display.clearDisplay();
+    drawEye((SCREEN_WIDTH/2 - 50) / 2, (SCREEN_HEIGHT - 50) / 2, 50, 50);
+    drawEye((SCREEN_WIDTH+60 - 50) / 2, (SCREEN_HEIGHT - 50) / 2, 50, 50);
+    display.display();
+  }
+  else{
+    blinkEyes();
+  }
 
-  int size1 = 50;
-
-  //Left Eyes
-  int x1 = (SCREEN_WIDTH/2 - size1) / 2;
-  int y1 = (SCREEN_HEIGHT - size1) / 2;
-  drawSquare(x1, y1, size1, true);
-
-  //Right Eyes
-  int x2 = (SCREEN_WIDTH+60 - size1) / 2;
-  int y2 = (SCREEN_HEIGHT - size1) / 2;
-  drawSquare(x2, y2, size1, true);
-
-
-  display.display();
-  delay(2000); // 2 saniye bekle, sonra tekrar çiz (demo amaçlı)
+  
+  // Kırpma efekti
+  //blinkEyes();
 }
