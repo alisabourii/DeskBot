@@ -70,8 +70,4 @@ void loop() {
   else{
     blinkEyes();
   }
-
-  
-  // Kırpma efekti
-  //blinkEyes();
 }
